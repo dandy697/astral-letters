@@ -4,5 +4,15 @@
       "source": "/api/astro/(.*)",
       "destination": "/api/astro"
     }
-  ]
+  ],
+  "functions": {
+    "app/api/reports/[id]/download/route.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    },
+    "app/api/reports/[id]/natal/download/route.ts": {
+      "memory": 1024,
+      "maxDuration": 60
+    }
+  }
 }

@@ -12,9 +12,26 @@ export async function generatePdfBuffer(html: string) {
       console.log("[PDF] Production environment detected, launching sparticuz-chromium...");
       const chromium = (await import("@sparticuz/chromium")).default;
       const puppeteer = await import("puppeteer-core");
+      const path = await import("path");
+      const fs = await import("fs");
       
-      const executablePath = await chromium.executablePath();
-      console.log(`[PDF] Executable path: ${executablePath}`);
+      // Explicitly check for the bin folder as Vercel sometimes traces it elsewhere
+      let executablePath = "";
+      try {
+        const binPath = path.join(process.cwd(), "node_modules/@sparticuz/chromium/bin");
+        if (fs.existsSync(binPath)) {
+          console.log(`[PDF] Found chromium bin at: ${binPath}`);
+          executablePath = await chromium.executablePath(binPath);
+        } else {
+          console.log("[PDF] bin folder not found in node_modules, using default resolution");
+          executablePath = await chromium.executablePath();
+        }
+      } catch (err) {
+        console.error("[PDF] Error resolving executable path:", err);
+        executablePath = await chromium.executablePath();
+      }
+      
+      console.log(`[PDF] Final executable path: ${executablePath}`);
 
       browser = await puppeteer.launch({
         args: [
@@ -22,7 +39,8 @@ export async function generatePdfBuffer(html: string) {
           "--font-render-hinting=none",
           "--no-zygote",
           "--single-process",
-          "--disable-gpu"
+          "--disable-gpu",
+          "--no-sandbox"
         ],
         defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
         executablePath: executablePath,
