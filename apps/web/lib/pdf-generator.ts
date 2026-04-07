@@ -18,12 +18,15 @@ export async function generatePdfBuffer(html: string) {
       // Explicitly check for the bin folder as Vercel sometimes traces it elsewhere
       let executablePath = "";
       try {
+        // Improved path resolution for Vercel
         const binPath = path.join(process.cwd(), "node_modules/@sparticuz/chromium/bin");
+        console.log(`[PDF] Checking binPath: ${binPath}`);
+        
         if (fs.existsSync(binPath)) {
-          console.log(`[PDF] Found chromium bin at: ${binPath}`);
+          console.log(`[PDF] binPath exists, using it for executablePath.`);
           executablePath = await chromium.executablePath(binPath);
         } else {
-          console.log("[PDF] bin folder not found in node_modules, using default resolution");
+          console.log(`[PDF] binPath NOT found at ${binPath}. Falling back to default.`);
           executablePath = await chromium.executablePath();
         }
       } catch (err) {

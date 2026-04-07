@@ -38,14 +38,29 @@ export async function POST(request: Request) {
         }
       });
 
-      await prisma.lead.create({
-        data: {
-          email: input.email,
-          firstName: input.firstName,
-          consentText: "Consentement capturé depuis le formulaire sanctuary.",
-          userId: user.id
-        }
+      // Safe check for existing lead to avoid unique constraint errors
+      const existingLead = await prisma.lead.findFirst({
+        where: { email: input.email }
       });
+
+      if (existingLead) {
+        await prisma.lead.update({
+          where: { id: existingLead.id },
+          data: {
+            firstName: input.firstName,
+            userId: user.id
+          }
+        });
+      } else {
+        await prisma.lead.create({
+          data: {
+            email: input.email,
+            firstName: input.firstName,
+            consentText: "Consentement capturé depuis le formulaire sanctuary.",
+            userId: user.id
+          }
+        });
+      }
 
       await prisma.birthProfile.upsert({
         where: { userId: user.id },

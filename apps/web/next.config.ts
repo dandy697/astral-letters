@@ -3,8 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   serverExternalPackages: ["@sparticuz/chromium", "puppeteer-core"],
   outputFileTracingIncludes: {
-    "/api/reports/(.*)/download": ["node_modules/@sparticuz/chromium/bin/*"],
-    "/api/reports/(.*)/natal/download": ["node_modules/@sparticuz/chromium/bin/*"],
+    "/api/reports/[id]/download": ["node_modules/@sparticuz/chromium/bin/**/*"],
+    "/api/reports/[id]/natal/download": ["node_modules/@sparticuz/chromium/bin/**/*"],
   },
 };
 

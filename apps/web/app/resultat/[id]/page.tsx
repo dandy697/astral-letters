@@ -219,16 +219,14 @@ export default async function ResultPage({ params }: ResultPageProps) {
                <p className="text-[var(--muted)] mt-2 italic">Votre thème astral complet en 26 pages</p>
             </div>
             
-            <Card className="p-6 md:p-12 border-2 border-[var(--accent-soft)] relative overflow-hidden bg-gradient-to-br from-[#FAF8F6] to-[#F3EFED] shadow-2xl max-w-5xl mx-auto">
-              {/* ... existing card content ... */}
-              <div className="absolute top-4 right-4 md:top-6 md:right-6">
-                <Badge variant="gold" className="px-3 py-1 md:px-4 md:py-1.5 shadow-sm text-[10px] md:text-xs">Édition Unique</Badge>
-              </div>
-              
-              <div className="flex flex-col md:flex-row justify-between items-center gap-12 relative z-10">
-                <div className="max-w-xl text-center md:text-left pt-8 md:pt-0">
+            <Card className="border-2 border-[var(--accent-soft)] relative bg-gradient-to-br from-[#FAF8F6] to-[#F3EFED] shadow-2xl max-w-5xl mx-auto overflow-hidden">
+              <div className="flex flex-col md:flex-row justify-between items-center gap-8 md:gap-12 relative z-10 p-6 md:p-12">
+                <div className="max-w-xl text-center md:text-left w-full">
+                  <div className="mb-6 flex justify-center md:justify-start">
+                    <Badge variant="gold" className="px-4 py-1.5 shadow-sm">Édition Unique</Badge>
+                  </div>
                   <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-4 md:mb-6">Le document de toute une vie.</h3>
-                  <p className="text-[var(--muted)] mb-8 md:mb-10 leading-relaxed text-base md:text-lg px-2 md:px-0">
+                  <p className="text-[var(--muted)] mb-8 md:mb-10 leading-relaxed text-base md:text-lg">
                     Une analyse exhaustive, claire et profondément personnelle. Un manuel indispensable pour comprendre votre ADN stellaire, vos cycles longs et vos forces innées.
                   </p>
                   
