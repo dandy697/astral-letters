@@ -60,6 +60,8 @@ model User {
   generatedReports GeneratedReport[]
   newsletterLogs   NewsletterLog[]
   leads            Lead[]
+  auditLogs        AuditLog[]
+  payments         Payment[]
 }
 
 model Lead {
@@ -111,6 +113,7 @@ model Subscription {
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean            @default(false)
   createdAt            DateTime?          @default(now()) @db.Timestamptz(6)
+  payments             Payment[]
 }
 
 model Offer {
@@ -145,4 +148,28 @@ model NewsletterLog {
   previewText    String?
   deliveryStatus String?
   createdAt      DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  user       User?    @relation(fields: [userId], references: [id])
+  userId     String?
+  action     String
+  entityType String
+  entityId   String
+  payload    Json?
+  createdAt  DateTime @default(now()) @db.Timestamptz(6)
+}
+
+model Payment {
+  id             String        @id @default(cuid())
+  user           User          @relation(fields: [userId], references: [id])
+  userId         String
+  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId String?
+  stripeId       String        @unique
+  amount         Int
+  currency       String
+  status         String
+  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
 }
