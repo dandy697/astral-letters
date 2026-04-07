@@ -4,11 +4,27 @@ import { storeBinaryAsset } from "@/lib/storage";
 import { renderFreeTeaserHtml, renderPremiumReportHtml, renderNatalReportHtml } from "@/lib/report-templates";
 
 export async function generatePdfBuffer(html: string) {
-  const puppeteer = await import("puppeteer");
-  const browser = await puppeteer.launch({ 
-    headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
-  });
+  let browser;
+  
+  if (process.env.VERCEL) {
+    // Vercel deployment
+    const chromium = (await import("@sparticuz/chromium")).default;
+    const puppeteer = await import("puppeteer-core");
+    
+    browser = await puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath(),
+      headless: chromium.headless,
+    });
+  } else {
+    // Local development
+    const puppeteer = await import("puppeteer");
+    browser = await puppeteer.launch({ 
+      headless: true,
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    });
+  }
 
   try {
     const page = await browser.newPage();
@@ -25,7 +41,9 @@ export async function generatePdfBuffer(html: string) {
     });
     return pdf;
   } finally {
-    await browser.close();
+    if (browser) {
+      await browser.close();
+    }
   }
 }
 
