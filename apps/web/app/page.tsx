@@ -448,18 +448,18 @@ export default function HomePage() {
         {/* ═══ 9. CTA FINAL ═══ */}
         <section className="section-wrap bg-[var(--background)]">
           <div className="container-shell text-center">
-            <motion.div {...fadeInUp} className="max-w-3xl mx-auto">
+            <motion.div {...fadeInUp} className="max-w-3xl mx-auto px-4">
               <Sparkles className="h-8 w-8 text-[var(--accent)] mx-auto mb-6" />
-              <h3 className="text-4xl md:text-6xl font-extrabold tracking-tight mb-8 leading-tight">
+              <h3 className="text-3xl sm:text-4xl md:text-6xl font-extrabold tracking-tight mb-8 leading-tight">
                 Votre thème astral vous attend.
               </h3>
-              <p className="text-lg text-[var(--muted)] mb-10 max-w-lg mx-auto">
+              <p className="text-base sm:text-lg text-[var(--muted)] mb-10 max-w-lg mx-auto">
                 Gratuit. Immédiat. Basé sur vos vraies données.
               </p>
-              <Button asChild size="xl">
-                <Link href="#capture">
-                  Recevoir ma lecture personnalisée
-                  <ArrowRight className="ml-2 h-5 w-5" />
+              <Button asChild size="xl" className="w-full sm:w-auto px-6 sm:px-10 h-auto py-5 sm:h-16">
+                <Link href="#capture" className="flex items-center justify-center gap-2">
+                  <span className="whitespace-normal sm:whitespace-nowrap">Recevoir ma lecture personnalisée</span>
+                  <ArrowRight className="shrink-0 h-5 w-5" />
                 </Link>
               </Button>
             </motion.div>
