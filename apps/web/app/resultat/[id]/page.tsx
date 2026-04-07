@@ -184,17 +184,13 @@ export default async function ResultPage({ params }: ResultPageProps) {
                     </div>
                   ))
                 ) : (
-                  ["8 avril", "14 avril", "27 avril"].map((date, idx) => (
-                    <div key={idx} className="p-4 rounded-xl border border-[var(--border)] bg-white opacity-40">
+                  ["8 avril", "14 avril", "21 avril", "27 avril"].map((date, idx) => (
+                    <div key={idx} className="p-4 rounded-xl border border-[var(--border)] bg-white">
                       <span className="text-[var(--accent)] font-bold mb-1 block">✧</span>
                       <span className="text-xs font-medium">{date}</span>
                     </div>
                   ))
                 )}
-                <div className="p-4 rounded-xl border-2 border-dashed border-[var(--border)] bg-transparent flex items-center justify-center">
-                  <Lock className="h-4 w-4 text-[var(--muted)] mr-2" />
-                  <span className="text-xs font-medium text-[var(--muted)]">+ 12 jours</span>
-                </div>
               </div>
             </Card>
 

@@ -16,7 +16,8 @@ const envSchema = z.object({
   SUPABASE_URL: z.string().optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().optional(),
   SUPABASE_STORAGE_BUCKET: z.string().optional(),
-  ADMIN_EMAIL: z.string().optional()
+  ADMIN_EMAIL: z.string().optional(),
+  ADMIN_SECRET: z.string().default("fallback-secret-change-me")
 });
 
 export const env = envSchema.parse({
@@ -35,5 +36,6 @@ export const env = envSchema.parse({
   SUPABASE_URL: process.env.SUPABASE_URL,
   SUPABASE_SERVICE_ROLE_KEY: process.env.SUPABASE_SERVICE_ROLE_KEY,
   SUPABASE_STORAGE_BUCKET: process.env.SUPABASE_STORAGE_BUCKET,
-  ADMIN_EMAIL: process.env.ADMIN_EMAIL
+  ADMIN_EMAIL: process.env.ADMIN_EMAIL,
+  ADMIN_SECRET: process.env.ADMIN_SECRET
 });

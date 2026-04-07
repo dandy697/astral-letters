@@ -135,31 +135,108 @@ export function BirthForm({ onNameChange }: { onNameChange?: (name: string) => v
           })}
         </div>
 
-        <div className="grid gap-5 md:grid-cols-3">
-          {fields.slice(2, 5).map((field) => {
-            const error = form.formState.errors[field.name];
-            return (
-              <div key={field.name} className="space-y-2">
-                <Label
-                  htmlFor={field.name}
-                  className="text-sm font-semibold text-[var(--foreground)]"
-                >
-                  {field.label}
-                </Label>
-                <Input
-                  id={field.name}
-                  type={field.type}
-                  placeholder={field.placeholder}
-                  {...form.register(field.name)}
-                />
-                {error ? (
-                  <p className="text-xs text-[var(--danger)] font-medium">
-                    {error.message}
-                  </p>
-                ) : null}
-              </div>
-            );
-          })}
+        <div className="grid gap-5 md:grid-cols-2">
+          {/* Saisie Date de Naissance Segmentée */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-[var(--foreground)]">Date de naissance</Label>
+            <div className="grid grid-cols-3 gap-2">
+              <Input
+                type="number"
+                placeholder="JJ"
+                className="text-center px-1"
+                min={1}
+                max={31}
+                onChange={(e) => {
+                  const val = e.target.value.padStart(2, "0");
+                  const current = form.getValues("birthDate") || "----/--/--";
+                  const parts = current.split("-");
+                  form.setValue("birthDate", `${parts[0] || "1990"}-${parts[1] || "01"}-${val}`);
+                }}
+              />
+              <Input
+                type="number"
+                placeholder="MM"
+                className="text-center px-1"
+                min={1}
+                max={12}
+                onChange={(e) => {
+                  const val = e.target.value.padStart(2, "0");
+                  const current = form.getValues("birthDate") || "-----01-01";
+                  const parts = current.split("-");
+                  form.setValue("birthDate", `${parts[0] || "1990"}-${val}-${parts[2] || "01"}`);
+                }}
+              />
+              <Input
+                type="number"
+                placeholder="AAAA"
+                className="text-center px-1"
+                min={1900}
+                max={2100}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  const current = form.getValues("birthDate") || "1990-01-01";
+                  const parts = current.split("-");
+                  form.setValue("birthDate", `${val}-${parts[1] || "01"}-${parts[2] || "01"}`);
+                }}
+              />
+            </div>
+            {form.formState.errors.birthDate && (
+              <p className="text-xs text-[var(--danger)] font-medium">{form.formState.errors.birthDate.message}</p>
+            )}
+          </div>
+
+          {/* Saisie Heure de Naissance Segmentée */}
+          <div className="space-y-2">
+            <Label className="text-sm font-semibold text-[var(--foreground)]">Heure de naissance</Label>
+            <div className="grid grid-cols-2 gap-2">
+              <Input
+                type="number"
+                placeholder="HH"
+                className="text-center px-1"
+                min={0}
+                max={23}
+                onChange={(e) => {
+                  const val = e.target.value.padStart(2, "0");
+                  const current = form.getValues("birthTime") || "12:00";
+                  const parts = current.split(":");
+                  form.setValue("birthTime", `${val}:${parts[1] || "00"}`);
+                }}
+              />
+              <Input
+                type="number"
+                placeholder="mm"
+                className="text-center px-1"
+                min={0}
+                max={59}
+                onChange={(e) => {
+                  const val = e.target.value.padStart(2, "0");
+                  const current = form.getValues("birthTime") || "12:00";
+                  const parts = current.split(":");
+                  form.setValue("birthTime", `${parts[0] || "12"}:${val}`);
+                }}
+              />
+            </div>
+            {form.formState.errors.birthTime && (
+              <p className="text-xs text-[var(--danger)] font-medium">{form.formState.errors.birthTime.message}</p>
+            )}
+          </div>
+
+          {/* Lieu de naissance */}
+          <div className="md:col-span-1 space-y-2">
+            <Label htmlFor="birthLocation" className="text-sm font-semibold text-[var(--foreground)]">
+              Lieu de naissance
+            </Label>
+            <Input
+              id="birthLocation"
+              placeholder="Ville, Pays"
+              {...form.register("birthLocation")}
+            />
+            {form.formState.errors.birthLocation && (
+              <p className="text-xs text-[var(--danger)] font-medium">
+                {form.formState.errors.birthLocation.message}
+              </p>
+            )}
+          </div>
         </div>
 
         <label className="flex items-start gap-3 p-4 rounded-xl border border-[var(--border)] bg-[var(--background)] cursor-pointer hover:border-[var(--primary)] transition-all group">

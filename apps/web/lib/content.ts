@@ -37,7 +37,6 @@ export function generatePremiumContent(firstName: string, chart: AstroChart, var
   if (variant === "free") {
     return {
       ...base,
-      // On garde tout le contenu pour l'instant
     };
   }
 

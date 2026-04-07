@@ -5,7 +5,7 @@ import { webPublicReportsRoot } from "@/lib/paths";
 
 export async function GET(
   request: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
   const filePath = path.join(webPublicReportsRoot, id);
@@ -16,7 +16,7 @@ export async function GET(
     return new NextResponse(fileBuffer, {
       headers: {
         "Content-Type": "application/pdf",
-        "Content-Disposition": `inline; filename="${filename}"`,
+        "Content-Disposition": `inline; filename="${id}"`,
       },
     });
   } catch (error) {

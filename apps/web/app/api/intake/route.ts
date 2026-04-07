@@ -9,7 +9,8 @@ import { createFreeTeaserReport } from "@/lib/reports";
 import { intakeSchema } from "@/lib/schemas";
 
 export async function POST(request: Request) {
-  console.log("[INTAKE] Starting new request processing...");
+  const requestId = Math.random().toString(36).substring(7);
+  console.log(`[INTAKE][${requestId}] Starting new request processing...`);
   try {
     const body = await request.json();
     const input = intakeSchema.parse(body);
@@ -86,29 +87,51 @@ export async function POST(request: Request) {
         }
       });
 
-      const report = await createFreeTeaserReport({
-        userId: user.id,
-        firstName: input.firstName,
-        chart
-      });
+      console.log(`[INTAKE][${requestId}] Generating PDF teaser...`);
+      try {
+        const report = await createFreeTeaserReport({
+          userId: user.id,
+          firstName: input.firstName,
+          chart
+        });
 
-      resultUrl = `/resultat/${report.id}`;
-      pdfUrl = report.pdfUrl;
+        resultUrl = `/resultat/${report.id}`;
+        pdfUrl = report.pdfUrl;
+      } catch (pdfErr) {
+        console.error(`[INTAKE][${requestId}] PDF Generation failed, but user record exists. Proceeding to web result.`, pdfErr);
+        // Fallback: create a report entry WITHOUT PDF if generation crashed
+        const fallbackReport = await prisma.generatedReport.create({
+          data: {
+            userId: user.id,
+            type: "FREE_TEASER",
+            deliveryChannel: "EMAIL",
+            title: `Aperçu gratuit • ${new Date().toLocaleDateString("fr-FR")}`,
+            contentJson: { chart } as any,
+            htmlSnapshot: "<h1>PDF Generation Failed</h1>",
+          }
+        });
+        resultUrl = `/resultat/${fallbackReport.id}`;
+      }
     } else {
-      console.log("[INTAKE] Local storage used (No DATABASE_URL).");
-      const report = await createLocalFreeTeaserReport({
-        firstName: input.firstName,
-        email: input.email,
-        chart
-      });
+      console.log(`[INTAKE][${requestId}] Local storage used (No DATABASE_URL).`);
+      try {
+        const report = await createLocalFreeTeaserReport({
+          firstName: input.firstName,
+          email: input.email,
+          chart
+        });
 
-      resultUrl = `/resultat/${report.id}`;
-      pdfUrl = report.pdfUrl;
+        resultUrl = `/resultat/${report.id}`;
+        pdfUrl = report.pdfUrl;
+      } catch (localErr) {
+        console.error(`[INTAKE][${requestId}] Local report storage/PDF failed.`, localErr);
+        throw localErr; // Re-throw to be caught by main handler
+      }
     }
 
     // Attempt to send emails but don't fail the whole request if mailing fails
     try {
-      console.log("[INTAKE] Sending emails...");
+      console.log(`[INTAKE][${requestId}] Sending emails...`);
       await sendWelcomeEmail(input.email, input.firstName, content.generalEnergy, {
         sun: chart.luminaries.sun.sign,
         moon: chart.luminaries.moon.sign,
@@ -119,22 +142,22 @@ export async function POST(request: Request) {
       console.error("[INTAKE] Non-critical error sending emails:", mailError);
     }
 
-    console.log("[INTAKE] Processing complete.");
+    console.log(`[INTAKE][${requestId}] Processing complete. Redirecting to ${resultUrl}`);
     return NextResponse.json({
       summary: `${content.introduction} ${content.generalEnergy}`,
       chart,
       resultUrl,
       pdfUrl
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof ZodError) {
-      console.warn("[INTAKE] Validation error:", error.errors);
+      console.warn(`[INTAKE][${requestId}] Validation error:`, error.errors);
       return NextResponse.json({ error: "Données invalides. Veuillez vérifier vos informations." }, { status: 400 });
     }
     
-    console.error("[INTAKE] Unhandled critical error:", error);
+    console.error(`[INTAKE][${requestId}] Unhandled critical error:`, error.message, error.stack);
     return NextResponse.json({ 
-      error: "Une erreur critique est survenue. Nos éphémérides sont peut-être momentanément indisponibles." 
+      error: `Une erreur critique est survenue (${error.message || "Unknown"}). Nos éphémérides sont peut-être momentanément indisponibles.` 
     }, { status: 500 });
   }
 }

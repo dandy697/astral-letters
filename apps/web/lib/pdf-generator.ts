@@ -6,24 +6,29 @@ import { renderFreeTeaserHtml, renderPremiumReportHtml, renderNatalReportHtml } 
 export async function generatePdfBuffer(html: string) {
   let browser;
   
-  if (process.env.VERCEL) {
-    // Vercel deployment
-    const chromium = (await import("@sparticuz/chromium")).default;
-    const puppeteer = await import("puppeteer-core");
-    
-    browser = await puppeteer.launch({
-      args: chromium.args,
-      defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
-      executablePath: await chromium.executablePath(),
-      headless: (chromium as any).headless,
-    });
-  } else {
-    // Local development
-    const puppeteer = await import("puppeteer");
-    browser = await puppeteer.launch({ 
-      headless: true,
-      args: ['--no-sandbox', '--disable-setuid-sandbox']
-    });
+  try {
+    if (process.env.VERCEL) {
+      // Vercel deployment
+      const chromium = (await import("@sparticuz/chromium")).default;
+      const puppeteer = await import("puppeteer-core");
+      
+      browser = await puppeteer.launch({
+        args: chromium.args,
+        defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
+        executablePath: await chromium.executablePath(),
+        headless: (chromium as any).headless,
+      });
+    } else {
+      // Local development
+      const puppeteer = await import("puppeteer");
+      browser = await puppeteer.launch({ 
+        headless: true,
+        args: ['--no-sandbox', '--disable-setuid-sandbox']
+      });
+    }
+  } catch (launchError: any) {
+    console.error(`[PDF] Failed to launch browser: ${launchError.message}`);
+    throw new Error(`Browser launch failed: ${launchError.message}`);
   }
 
   try {

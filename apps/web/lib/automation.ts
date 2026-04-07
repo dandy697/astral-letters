@@ -11,6 +11,7 @@
  * Currently, generation is synchronous. In production, move to a job queue.
  */
 
+import { env } from "@/lib/env";
 import type { AstroChart } from "@/lib/astro";
 import { generatePremiumContent } from "@/lib/content";
 
@@ -153,6 +154,130 @@ export interface IPdfGenerationService {
   generateTeaser(userId: string): Promise<{ pdfUrl: string }>;
   generatePremium(userId: string): Promise<{ pdfUrl: string }>;
   regenerate(reportId: string): Promise<{ pdfUrl: string }>;
+}
+
+import { prisma } from "@/lib/prisma";
+import { createPremiumReportFromChart } from "@/lib/reports";
+
+export class MonthlyGenerationService implements IMonthlyGenerationService {
+  private emailProvider: IEmailProvider;
+
+  constructor(emailProvider: IEmailProvider) {
+    this.emailProvider = emailProvider;
+  }
+
+  async generateForAllUsers(): Promise<{ processed: number; errors: number }> {
+    console.log("[AUTOMATION] Starting monthly generation...");
+    
+    // 1. Determine which users to process
+    // If Stripe is not connected, or if we want to include everyone for testing, 
+    // we fetch all users that have a natal chart.
+    const isStripeActive = !!env.STRIPE_SECRET_KEY;
+    
+    const users = await prisma.user.findMany({
+      where: {
+        natalChart: { isNot: null },
+        // If Stripe is active, we might want to filter by subscription.
+        // But for now, since the user said "I don't connect Stripe", 
+        // we process everyone who has a chart (meaning they completed the intake).
+        ...(isStripeActive ? {
+          subscriptions: {
+            some: {
+              status: "ACTIVE",
+            },
+          },
+        } : {})
+      },
+      include: {
+        natalChart: true,
+      },
+    });
+
+    console.log(`[AUTOMATION] Found ${users.length} users to process (Stripe active: ${isStripeActive}).`);
+
+    let processed = 0;
+    let errors = 0;
+
+    for (const user of users) {
+      try {
+        await this.generateForUser(user.id);
+        processed++;
+      } catch (err) {
+        console.error(`[AUTOMATION] Error generating monthly for user ${user.id}:`, err);
+        errors++;
+      }
+    }
+
+    return { processed, errors };
+  }
+
+  async generateForUser(userId: string): Promise<void> {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      include: { natalChart: true },
+    });
+
+    if (!user || !user.natalChart) {
+      throw new Error("User or natal chart not found");
+    }
+
+    // 1. Generate the report and PDF
+    const report = await createPremiumReportFromChart({
+      userId: user.id,
+      firstName: user.firstName,
+      chart: user.natalChart.chartJson as any,
+    });
+
+    // 2. Prepare Email
+    const subject = EMAIL_SUBJECTS.monthly_newsletter(user.firstName);
+    const htmlBody = `
+      <h1>Bonjour ${user.firstName},</h1>
+      <p>Votre guidance astrologique pour ce mois est prête.</p>
+      <p>Vous pouvez consulter votre rapport complet en pièce jointe ou sur votre tableau de bord.</p>
+      <p><a href="${report.pdfUrl}">Télécharger mon rapport PDF</a></p>
+    `;
+
+    // 3. Send Email
+    await this.emailProvider.sendEmail(
+      user.email,
+      subject,
+      htmlBody,
+      `Bonjour ${user.firstName}, votre guidance mensuelle est prête : ${report.pdfUrl}`
+    );
+
+    // 4. Log to NewsletterLog
+    await prisma.newsletterLog.create({
+      data: {
+        userId: user.id,
+        reportId: report.id,
+        subject,
+        previewText: "Votre guidance mensuelle est prête",
+        htmlBody,
+        textBody: `Bonjour ${user.firstName}, votre guidance mensuelle est prête : ${report.pdfUrl}`,
+        deliveryStatus: "SENT",
+      },
+    });
+
+    console.log(`[AUTOMATION] Monthly report sent to ${user.email}`);
+  }
+}
+
+export class WeeklyGenerationService implements IWeeklyGenerationService {
+  private emailProvider: IEmailProvider;
+
+  constructor(emailProvider: IEmailProvider) {
+    this.emailProvider = emailProvider;
+  }
+
+  async generateForAllUsers(): Promise<{ processed: number; errors: number }> {
+    // For MVP, we use a similar logic to monthly but with a different report type
+    // In the future, this would use a 'WEEKLY_UPDATE' variant
+    return { processed: 0, errors: 0 };
+  }
+
+  async generateForUser(userId: string): Promise<void> {
+    console.log(`[WEEKLY-STUB] Would generate weekly for ${userId}`);
+  }
 }
 
 // ═══════════════════════════════════════════════════════
