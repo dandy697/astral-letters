@@ -8,45 +8,6 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
-model User {
-  id        String    @id @default(cuid())
-  email     String    @unique
-  firstName String?
-  createdAt DateTime? @default(now()) @db.Timestamptz(6)
-  updatedAt DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
-}
-
-model Lead {
-  id          String    @id @default(cuid())
-  email       String    @unique
-  firstName   String?
-  consentText String?
-  userId      String?
-  createdAt   DateTime? @default(now()) @db.Timestamptz(6)
-}
-
-model NatalChart {
-  id               String    @id @default(cuid())
-  userId           String    @unique
-  sunSign          String
-  moonSign         String
-  ascendantSign    String
-  chartJson        Json
-  technicalSummary String?
-  createdAt        DateTime? @default(now()) @db.Timestamptz(6)
-}
-
-model GeneratedReport {
-  id           String    @id @default(cuid())
-  userId       String
-  type         String
-  title        String
-  contentJson  Json
-  htmlSnapshot String?
-  pdfUrl       String?
-  createdAt    DateTime? @default(now()) @db.Timestamptz(6)
-}
-
 enum UserRole {
   USER
   ADMIN
@@ -83,4 +44,105 @@ enum DeliveryChannel {
   EMAIL
   PDF
   DASHBOARD
+}
+
+model User {
+  id               String            @id @default(cuid())
+  email            String            @unique
+  firstName        String?
+  role             UserRole          @default(USER)
+  createdAt        DateTime?         @default(now()) @db.Timestamptz(6)
+  updatedAt        DateTime?         @default(now()) @updatedAt @db.Timestamptz(6)
+  
+  birthProfile     BirthProfile?
+  natalChart       NatalChart?
+  subscriptions    Subscription[]
+  generatedReports GeneratedReport[]
+  newsletterLogs   NewsletterLog[]
+  leads            Lead[]
+}
+
+model Lead {
+  id          String      @id @default(cuid())
+  email       String      @unique
+  firstName   String?
+  consentText String?
+  source      LeadSource  @default(QUIZ)
+  user        User?       @relation(fields: [userId], references: [id])
+  userId      String?
+  createdAt   DateTime?   @default(now()) @db.Timestamptz(6)
+}
+
+model BirthProfile {
+  id                String    @id @default(cuid())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String    @unique
+  birthDate         DateTime
+  birthTime         String?
+  birthLocation     String
+  latitude          Float
+  longitude         Float
+  timezone          String
+  isBirthTimeApprox Boolean   @default(false)
+  createdAt         DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model NatalChart {
+  id               String    @id @default(cuid())
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId           String    @unique
+  sunSign          String
+  moonSign         String
+  ascendantSign    String
+  chartJson        Json
+  technicalSummary String?
+  createdAt        DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model Subscription {
+  id                   String             @id @default(cuid())
+  user                 User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId               String
+  status               SubscriptionStatus
+  offer                Offer              @relation(fields: [offerId], references: [id])
+  offerId              String
+  stripeSubscriptionId String?            @unique
+  priceId              String?
+  currentPeriodEnd     DateTime?
+  cancelAtPeriodEnd    Boolean            @default(false)
+  createdAt            DateTime?          @default(now()) @db.Timestamptz(6)
+}
+
+model Offer {
+  id                    String         @id @default(cuid())
+  name                  String
+  slug                  String         @unique
+  type                  OfferType
+  priceMonthly          Float?
+  stripeProductId       String?
+  stripePriceIdMonthly  String?
+  subscriptions        Subscription[]
+}
+
+model GeneratedReport {
+  id           String          @id @default(cuid())
+  user         User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId       String
+  type         ReportType
+  title        String
+  contentJson  Json
+  htmlSnapshot String?
+  pdfUrl       String?
+  deliveryChannel DeliveryChannel @default(PDF)
+  createdAt    DateTime?       @default(now()) @db.Timestamptz(6)
+}
+
+model NewsletterLog {
+  id             String    @id @default(cuid())
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId         String
+  subject        String
+  previewText    String?
+  deliveryStatus String?
+  createdAt      DateTime? @default(now()) @db.Timestamptz(6)
 }
