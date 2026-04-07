@@ -224,14 +224,14 @@ export class MonthlyGenerationService implements IMonthlyGenerationService {
     // 1. Generate the report and PDF
     const report = await createPremiumReportFromChart({
       userId: user.id,
-      firstName: user.firstName,
+      firstName: user.firstName || "Astro User",
       chart: user.natalChart.chartJson as any,
     });
 
     // 2. Prepare Email
-    const subject = EMAIL_SUBJECTS.monthly_newsletter(user.firstName);
+    const subject = EMAIL_SUBJECTS.monthly_newsletter(user.firstName || "Astro User");
     const htmlBody = `
-      <h1>Bonjour ${user.firstName},</h1>
+      <h1>Bonjour ${user.firstName || "Astro User"},</h1>
       <p>Votre guidance astrologique pour ce mois est prête.</p>
       <p>Vous pouvez consulter votre rapport complet en pièce jointe ou sur votre tableau de bord.</p>
       <p><a href="${report.pdfUrl}">Télécharger mon rapport PDF</a></p>

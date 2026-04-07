@@ -106,7 +106,7 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
     if (natalChart) {
       await createPremiumReportFromChart({
         userId: user.id,
-        firstName: user.firstName,
+        firstName: user.firstName || "Astro User",
         chart: natalChart.chartJson as AstroChart
       });
     }
