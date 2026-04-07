@@ -121,10 +121,12 @@ model Offer {
   name                  String
   slug                  String         @unique
   type                  OfferType
-  priceMonthly          Float?
+  priceMonthlyCents     Int?
+  oneShotPriceCents     Int?
   stripeProductId       String?
   stripePriceIdMonthly  String?
   subscriptions        Subscription[]
+  payments             Payment[]
 }
 
 model GeneratedReport {
@@ -167,14 +169,17 @@ model AuditLog {
 }
 
 model Payment {
-  id             String        @id @default(cuid())
-  user           User          @relation(fields: [userId], references: [id])
-  userId         String
-  subscription   Subscription? @relation(fields: [subscriptionId], references: [id])
-  subscriptionId String?
-  stripeId       String        @unique
-  amount         Int
-  currency       String
-  status         String
-  createdAt      DateTime      @default(now()) @db.Timestamptz(6)
+  id                    String        @id @default(cuid())
+  user                  User          @relation(fields: [userId], references: [id])
+  userId                String
+  subscription          Subscription? @relation(fields: [subscriptionId], references: [id])
+  subscriptionId        String?
+  offer                 Offer?        @relation(fields: [offerId], references: [id])
+  offerId               String?
+  stripeCheckoutId      String        @unique
+  stripePaymentIntentId String?       @unique
+  amountCents           Int
+  currency              String
+  status                String
+  createdAt             DateTime      @default(now()) @db.Timestamptz(6)
 }
