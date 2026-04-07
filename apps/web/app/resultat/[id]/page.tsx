@@ -202,12 +202,12 @@ export default async function ResultPage({ params }: ResultPageProps) {
               <p className="text-[var(--muted)] mb-8 max-w-md mx-auto text-sm">
                 Téléchargez immédiatement votre portrait de découverte au format PDF pour le relire à tout moment.
               </p>
-              <Button asChild size="lg" variant="outline" className="h-14 px-8 rounded-full border-2 border-[var(--accent)] text-[var(--accent)] hover:bg-[var(--accent-soft)] transition-all">
-                <a href={pdfUrl || "#"} target="_blank" rel="noopener noreferrer">
-                  <Download className="mr-2 h-5 w-5" />
-                  Télécharger mon Portrait (PDF Gratuit)
-                </a>
-              </Button>
+                <Button asChild size="lg" variant="outline" className="w-full sm:w-auto h-12 text-base font-semibold border-2 bg-white/5 hover:bg-white/10">
+                  <a href={`/api/reports/${id}/download`} target="_blank" rel="noopener noreferrer">
+                    <Download className="mr-2 h-5 w-5" />
+                    Télécharger mon Portrait
+                  </a>
+                </Button>
             </div>
           </div>
 

@@ -33,11 +33,13 @@ export async function GET(
   // 1. Try Prisma if DB is available
   if (reportId !== "demo" && hasDb) {
     try {
+      console.log(`[DOWNLOAD] Fetching report ${reportId} from Prisma...`);
       const report = await prisma.generatedReport.findUnique({
         where: { id: reportId },
       });
 
       if (report) {
+        console.log(`[DOWNLOAD] Found report ${reportId} in Prisma`);
         const content = extractReportContent(report);
         const chart = content.chart ? normalizeChart(content.chart) : null;
         
@@ -51,21 +53,25 @@ export async function GET(
           love: content.love || "",
           work: content.work || "",
           wellbeing: content.wellbeing || "",
-          keyDays: (content.keyDays as any[]).map(k => k.date),
+          keyDays: Array.isArray(content.keyDays) ? (content.keyDays as any[]).map(k => k.date) : [],
         };
+      } else {
+        console.warn(`[DOWNLOAD] Report ${reportId} not found in Prisma`);
       }
     } catch (error) {
-      console.error("Error fetching report from Prisma:", error);
+      console.error("[DOWNLOAD] Error fetching report from Prisma:", error);
     }
   }
 
   // 2. Fallback to Local Storage if not found or no DB
   if (reportId !== "demo" && data.firstName === demoUser.firstName) {
     try {
+      console.log(`[DOWNLOAD] Attempting local storage fallback for ${reportId}...`);
       const { findLocalReport } = await import("@/lib/local-report-store");
       const localReport = await findLocalReport(reportId);
       
       if (localReport) {
+        console.log(`[DOWNLOAD] Found local report ${reportId}`);
         const content = localReport.contentJson;
         const chart = normalizeChart(content.chart);
         
@@ -79,19 +85,20 @@ export async function GET(
           love: content.love || "",
           work: content.work || "",
           wellbeing: content.wellbeing || "",
-          keyDays: (content.keyDays as any[]).map(k => k.date),
+          keyDays: Array.isArray(content.keyDays) ? (content.keyDays as any[]).map(k => k.date) : [],
         };
       }
     } catch (error) {
-      console.error("Error fetching report from local store:", error);
+      console.error("[DOWNLOAD] Error fetching report from local store:", error);
     }
   }
 
+  console.log(`[DOWNLOAD] Starting PDF generation for ${data.firstName}...`);
   try {
     const pdfBuffer = await generatePremiumPdfBuffer(data);
     const pdf = Buffer.from(pdfBuffer);
 
-    console.log(`[PDF] Generated premium report for ${data.firstName} - Size: ${pdf.length} bytes`);
+    console.log(`[DOWNLOAD] PDF generated successfully for ${data.firstName} - size: ${pdf.length} bytes`);
 
     return new NextResponse(pdf, {
       status: 200,
@@ -102,8 +109,12 @@ export async function GET(
         "Cache-Control": "no-store, max-age=0",
       },
     });
-  } catch (error) {
-    console.error("PDF Generation Error:", error);
-    return NextResponse.json({ error: "Failed to generate PDF" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[DOWNLOAD] PDF Generation Error:", error);
+    return NextResponse.json({ 
+      error: "Failed to generate PDF", 
+      details: error.message,
+      environment: process.env.VERCEL ? "production" : "development"
+    }, { status: 500 });
   }
 }

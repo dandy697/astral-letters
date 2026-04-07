@@ -13,12 +13,22 @@ export async function generatePdfBuffer(html: string) {
       const chromium = (await import("@sparticuz/chromium")).default;
       const puppeteer = await import("puppeteer-core");
       
+      const executablePath = await chromium.executablePath();
+      console.log(`[PDF] Executable path: ${executablePath}`);
+
       browser = await puppeteer.launch({
-        args: [...chromium.args, "--font-render-hinting=none"],
+        args: [
+          ...chromium.args, 
+          "--font-render-hinting=none",
+          "--no-zygote",
+          "--single-process",
+          "--disable-gpu"
+        ],
         defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
-        executablePath: await chromium.executablePath(),
+        executablePath: executablePath,
         headless: (chromium as any).headless
       });
+      console.log("[PDF] Browser launched successfully on Vercel");
     } else {
       // Local development
       console.log("[PDF] Local environment detected, launching standard puppeteer...");
@@ -35,7 +45,15 @@ export async function generatePdfBuffer(html: string) {
 
   try {
     const page = await browser.newPage();
-    await page.setContent(html, { waitUntil: "networkidle0", timeout: 60000 });
+    console.log("[PDF] Page created, setting content...");
+    
+    // Increased timeout and changed waitUntil
+    await page.setContent(html, { 
+      waitUntil: ["networkidle0", "domcontentloaded"], 
+      timeout: 80000 
+    });
+    
+    console.log("[PDF] Content set, generating PDF...");
     const pdf = await page.pdf({
       format: "A4",
       printBackground: true,
@@ -46,10 +64,15 @@ export async function generatePdfBuffer(html: string) {
         left: "0"
       }
     });
+    console.log(`[PDF] PDF generated successfully, size: ${pdf.length} bytes`);
     return pdf;
+  } catch (renderError: any) {
+    console.error(`[PDF] Rendering failed: ${renderError.message}`);
+    throw renderError;
   } finally {
     if (browser) {
       await browser.close();
+      console.log("[PDF] Browser closed");
     }
   }
 }

@@ -28,11 +28,13 @@ export async function GET(
   // 1. Try Prisma if DB is available
   if (reportId !== "demo" && hasDb) {
     try {
+      console.log(`[NATAL] Fetching report ${reportId} from Prisma...`);
       const report = await prisma.generatedReport.findUnique({
         where: { id: reportId },
       });
 
       if (report) {
+        console.log(`[NATAL] Found report ${reportId} in Prisma`);
         const content = extractReportContent(report);
         const chart = content.chart ? normalizeChart(content.chart) : null;
 
@@ -43,19 +45,23 @@ export async function GET(
           ascendant: translateSign(chart?.luminaries.ascendant.sign || "Gémeaux"),
           profileLine: `${content.introduction}`,
         };
+      } else {
+        console.warn(`[NATAL] Report ${reportId} not found in Prisma`);
       }
     } catch (error) {
-      console.error("Error fetching natal report from Prisma:", error);
+      console.error("[NATAL] Error fetching natal report from Prisma:", error);
     }
   }
 
   // 2. Fallback to Local Storage if not found or no DB
   if (reportId !== "demo" && data.firstName === demoUser.firstName) {
     try {
+      console.log(`[NATAL] Attempting local storage fallback for ${reportId}...`);
       const { findLocalReport } = await import("@/lib/local-report-store");
       const localReport = await findLocalReport(reportId);
 
       if (localReport) {
+        console.log(`[NATAL] Found local report ${reportId}`);
         const content = localReport.contentJson;
         const chart = normalizeChart(content.chart);
 
@@ -68,15 +74,16 @@ export async function GET(
         };
       }
     } catch (error) {
-      console.error("Error fetching natal report from local store:", error);
+      console.error("[NATAL] Error fetching natal report from local store:", error);
     }
   }
 
+  console.log(`[NATAL] Starting Natal PDF generation for ${data.firstName}...`);
   try {
     const pdfBuffer = await generateNatalPdfBuffer(data);
     const pdf = Buffer.from(pdfBuffer);
 
-    console.log(`[PDF] Generated natal report for ${data.firstName} - Size: ${pdf.length} bytes`);
+    console.log(`[NATAL] PDF generated successfully for ${data.firstName} - size: ${pdf.length} bytes`);
 
     return new NextResponse(pdf, {
       status: 200,
@@ -87,8 +94,12 @@ export async function GET(
         "Cache-Control": "no-store, max-age=0",
       },
     });
-  } catch (error) {
-    console.error("Natal PDF Generation Error:", error);
-    return NextResponse.json({ error: "Failed to generate Natal PDF" }, { status: 500 });
+  } catch (error: any) {
+    console.error("[NATAL] Natal PDF Generation Error:", error);
+    return NextResponse.json({ 
+      error: "Failed to generate Natal PDF", 
+      details: error.message,
+      environment: process.env.VERCEL ? "production" : "development"
+    }, { status: 500 });
   }
 }
