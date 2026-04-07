@@ -274,3 +274,5 @@ Palette :
 | PDF | HTML/CSS → Puppeteer |
 | Paiement | Stripe |
 | Stockage | Local / Supabase Storage |
+
+# Vercel Trigger: Monorepo Root Directory Update
