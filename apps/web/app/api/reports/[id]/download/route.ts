@@ -51,7 +51,7 @@ export async function GET(
           love: content.love || "",
           work: content.work || "",
           wellbeing: content.wellbeing || "",
-          keyDays: content.keyDays.map(k => k.date),
+          keyDays: (content.keyDays as any[]).map(k => k.date),
         };
       }
     } catch (error) {
@@ -79,7 +79,7 @@ export async function GET(
           love: content.love || "",
           work: content.work || "",
           wellbeing: content.wellbeing || "",
-          keyDays: content.keyDays.map(k => k.date),
+          keyDays: (content.keyDays as any[]).map(k => k.date),
         };
       }
     } catch (error) {

@@ -1,22 +1,21 @@
 import type Stripe from "stripe";
-import { SubscriptionStatus } from "@prisma/client";
 import type { AstroChart } from "@/lib/astro";
 import { prisma } from "@/lib/prisma";
 import { createPremiumReportFromChart } from "@/lib/reports";
 
-function mapStripeSubscriptionStatus(status: string | null | undefined): SubscriptionStatus {
+function mapStripeSubscriptionStatus(status: string | null | undefined): any {
   switch (status) {
     case "active":
-      return SubscriptionStatus.ACTIVE;
+      return "ACTIVE";
     case "trialing":
-      return SubscriptionStatus.TRIALING;
+      return "TRIALING";
     case "past_due":
-      return SubscriptionStatus.PAST_DUE;
+      return "PAST_DUE";
     case "canceled":
     case "unpaid":
-      return SubscriptionStatus.CANCELED;
+      return "CANCELED";
     default:
-      return SubscriptionStatus.INCOMPLETE;
+      return "INCOMPLETE";
   }
 }
 
@@ -75,14 +74,14 @@ export async function handleCheckoutCompleted(session: Stripe.Checkout.Session) 
         userId: user.id,
         offerId: offer.id,
         stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
-        status: SubscriptionStatus.TRIALING
+        status: "TRIALING" as any
       },
       create: {
         userId: user.id,
         offerId: offer.id,
         stripeCustomerId: typeof session.customer === "string" ? session.customer : null,
         stripeSubscriptionId: session.subscription,
-        status: SubscriptionStatus.TRIALING
+        status: "TRIALING" as any
       }
     });
   }
@@ -183,7 +182,7 @@ export async function handleInvoiceStatus(invoice: Stripe.Invoice) {
   await prisma.subscription.updateMany({
     where: { stripeSubscriptionId: subscriptionId },
     data: {
-      status: invoice.status === "paid" ? SubscriptionStatus.ACTIVE : SubscriptionStatus.PAST_DUE
+      status: invoice.status === "paid" ? ("ACTIVE" as any) : ("PAST_DUE" as any)
     }
   });
 }

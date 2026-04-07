@@ -122,9 +122,9 @@ export function PremiumPdfTemplate({
             flexDirection: "column",
             justifyContent: "center"
           }}>
-            <div style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "#C8A96A", marginBottom: "16px" }}>L'Axe de ce mois</div>
+            <div style={{ fontSize: "11px", fontWeight: "700", textTransform: "uppercase", color: "#C8A96A", marginBottom: "16px" }}>L&apos;Axe de ce mois</div>
             <p style={{ fontSize: "21px", lineHeight: "1.5", color: "#3A1F3D", margin: 0 }}>
-              "Ce mois-ci, votre intuition demande une application concrète. La clarté ne viendra pas de la réflexion, mais de l'action ciblée sur vos priorités essentielles."
+              &quot;Ce mois-ci, votre intuition demande une application concrète. La clarté ne viendra pas de la réflexion, mais de l&apos;action ciblée sur vos priorités essentielles.&quot;
             </p>
           </div>
           <div style={{ 
@@ -211,7 +211,7 @@ export function PremiumPdfTemplate({
           textTransform: "uppercase",
           letterSpacing: "2px"
         }}>
-          Astral Letters — Guidance Astrologique & Thème Natal © 2026
+          Astral Letters — Guidance Astrologique &amp; Thème Natal © 2026
         </div>
       </div>
     </div>

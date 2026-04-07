@@ -2,7 +2,7 @@ import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
 import { cn } from "@/lib/utils";
 
-type ButtonVariant = "default" | "gold" | "outline" | "ghost" | "link";
+type ButtonVariant = "default" | "gold" | "outline" | "ghost" | "link" | "secondary";
 type ButtonSize = "sm" | "default" | "lg" | "xl";
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -11,6 +11,8 @@ const variantClasses: Record<ButtonVariant, string> = {
   gold:
     "bg-[#C8A96A] hover:bg-[#B89852] shadow-md hover:shadow-lg hover:shadow-[rgba(200,169,106,0.12)]",
   outline:
+    "border border-[var(--border)] bg-[var(--surface)] hover:bg-[rgba(58,31,61,0.06)] hover:border-[#3A1F3D]",
+  secondary:
     "border border-[var(--border)] bg-[var(--surface)] hover:bg-[rgba(58,31,61,0.06)] hover:border-[#3A1F3D]",
   ghost:
     "hover:bg-[rgba(58,31,61,0.06)]",
@@ -22,6 +24,7 @@ const variantInlineColor: Record<ButtonVariant, string | undefined> = {
   default: "#FFFFFF",
   gold: "#FFFFFF",
   outline: undefined,
+  secondary: undefined,
   ghost: undefined,
   link: "#3A1F3D",
 };

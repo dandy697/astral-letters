@@ -1,4 +1,3 @@
-import { DeliveryChannel, type GeneratedReport, ReportType } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import type { AstroChart } from "@/lib/astro";
 import { normalizeChart } from "@/lib/astro-i18n";
@@ -20,9 +19,9 @@ export async function createFreeTeaserReport({
   const report = await prisma.generatedReport.create({
     data: {
       userId,
-      type: ReportType.FREE_TEASER,
+      type: "FREE_TEASER" as any,
       title: `Aperçu gratuit • ${new Date().toLocaleDateString("fr-FR")}`,
-      deliveryChannel: DeliveryChannel.PDF,
+      deliveryChannel: "PDF" as any,
       htmlSnapshot: "",
       contentJson: {
         ...content,
@@ -67,9 +66,9 @@ export async function createPremiumReportFromChart({
   const report = await prisma.generatedReport.create({
     data: {
       userId,
-      type: ReportType.MONTHLY_PREMIUM,
+      type: "MONTHLY_PREMIUM" as any,
       title: `Rapport premium • ${new Date().toLocaleDateString("fr-FR")}`,
-      deliveryChannel: DeliveryChannel.PDF,
+      deliveryChannel: "PDF" as any,
       htmlSnapshot: "",
       contentJson: {
         ...content,
@@ -115,7 +114,7 @@ export async function regenerateReportPdf(reportId: string) {
   const chart = content.chart ? normalizeChart(content.chart) : undefined;
   const firstName = report.user?.firstName ?? "Vous";
 
-  if (report.type === ReportType.FREE_TEASER) {
+  if (report.type === ("FREE_TEASER" as any)) {
   const stored = await generateStoredPremiumPdf({
     reportId: report.id,
     firstName,

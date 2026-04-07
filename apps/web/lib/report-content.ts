@@ -1,4 +1,3 @@
-import type { GeneratedReport } from "@prisma/client";
 import type { AstroChart } from "@/lib/astro";
 import { generatePremiumContent } from "@/lib/content";
 

@@ -102,7 +102,7 @@ export default async function AdminPage() {
               <Badge variant="outline">{data.reports.length} récents</Badge>
             </div>
             <div className="space-y-3">
-              {data.reports.map((report) => (
+              {data.reports.map((report: any) => (
                 <div
                   key={report.id}
                   className="rounded-xl border border-[var(--border)] p-4 flex items-center justify-between gap-4"
@@ -156,7 +156,7 @@ export default async function AdminPage() {
               <Badge variant="outline">{data.newsletters.length} récents</Badge>
             </div>
             <div className="space-y-3">
-              {data.newsletters.map((newsletter) => (
+              {data.newsletters.map((newsletter: any) => (
                 <div
                   key={newsletter.id}
                   className="rounded-xl border border-[var(--border)] p-4"
@@ -185,7 +185,7 @@ export default async function AdminPage() {
             <h2 className="text-xl font-bold">Utilisateurs récents</h2>
           </div>
           <div className="space-y-3">
-            {data.latestUsers.map((user) => (
+            {data.latestUsers.map((user: any) => (
               <div
                 key={user.id}
                 className="rounded-xl border border-[var(--border)] p-4 grid gap-3 md:grid-cols-[1fr_1fr_auto] items-center"
@@ -198,7 +198,7 @@ export default async function AdminPage() {
                   {user.subscriptions.length > 0
                     ? user.subscriptions
                         .map(
-                          (sub) =>
+                          (sub: any) =>
                             `${sub.offer.name} • ${sub.status}`
                         )
                         .join(" / ")

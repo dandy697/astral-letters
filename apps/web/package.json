@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate",
@@ -12,7 +12,7 @@
     "prisma:seed": "tsx ../../scripts/seed.ts"
   },
   "prisma": {
-    "schema": "../../prisma/schema.prisma",
+    "schema": "prisma/schema.prisma",
     "seed": "tsx ../../scripts/seed.ts"
   },
   "dependencies": {
@@ -29,7 +29,7 @@
     "date-fns": "^4.1.0",
     "framer-motion": "^12.6.5",
     "lucide-react": "^0.503.0",
-    "next": "15.2.4",
+    "next": "16.2.2",
     "puppeteer": "^24.7.1",
     "puppeteer-core": "^24.40.0",
     "react": "^19.0.0",
@@ -47,7 +47,7 @@
     "@types/react-dom": "^19.0.4",
     "autoprefixer": "^10.4.20",
     "eslint": "^9.24.0",
-    "eslint-config-next": "^15.2.4",
+    "eslint-config-next": "16.2.2",
     "postcss": "^8.5.3",
     "prisma": "^6.6.0",
     "tailwindcss": "^4.1.3",

@@ -2,7 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 
 export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  variant?: "default" | "glass" | "premium" | "dark";
+  variant?: "default" | "glass" | "premium" | "dark" | "tinted";
 }
 
 const Card = React.forwardRef<HTMLDivElement, CardProps>(
@@ -16,6 +16,7 @@ const Card = React.forwardRef<HTMLDivElement, CardProps>(
           variant === "glass" && "border-[var(--border)] bg-white/90 backdrop-blur-sm shadow-sm",
           variant === "premium" && "border-[var(--border)] bg-gradient-to-br from-white via-[#FBF7F2] to-[#F7F0E8] shadow-md",
           variant === "dark" && "border-[#3A1F3D]/20 bg-[#3A1F3D] shadow-lg",
+          variant === "tinted" && "border-[#C8A96A]/20 bg-[#C8A96A]/5 shadow-sm",
           className
         )}
         style={variant === "dark" ? { color: "#FFFFFF", ...style } : style}

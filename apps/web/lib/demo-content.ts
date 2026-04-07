@@ -261,3 +261,14 @@ export const formMicrocopy = {
     "Préparation de votre rapport de 26 pages…",
   ],
 } as const;
+export const lunarPulse = {
+  title: "Le Pouls Lunaire du mois",
+  subtitle: "Suivez le rythme du ciel.",
+  month: "Avril 2026",
+  phases: [
+    { name: "Nouvelle Lune", date: "8 avril", impact: "Introspection" },
+    { name: "Premier Quartier", date: "15 avril", impact: "Action" },
+    { name: "Pleine Lune", date: "23 avril", impact: "Visibilité" },
+    { name: "Dernier Quartier", date: "1er mai", impact: "Bilan" },
+  ],
+} as const;

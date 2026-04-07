@@ -16,7 +16,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Missing signature" }, { status: 400 });
   }
 
-  const event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_WEBHOOK_SECRET);
+  let event;
+  try {
+    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_WEBHOOK_SECRET);
+  } catch (err: any) {
+    console.error(`[STRIPE WEBHOOK] Signature verification failed: ${err.message}`);
+    return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
+  }
 
   if (!process.env.DATABASE_URL) {
     return NextResponse.json({ received: true, skipped: true });

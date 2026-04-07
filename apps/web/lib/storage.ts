@@ -37,16 +37,26 @@ export async function storeBinaryAsset({
     });
 
     if (!error) {
-      const { data } = supabase.storage.from(env.SUPABASE_STORAGE_BUCKET).getPublicUrl(filePath);
-      return { url: data.publicUrl, storage: "supabase" as const, filePath };
+      const { data, error: signedUrlError } = await supabase.storage.from(env.SUPABASE_STORAGE_BUCKET).createSignedUrl(filePath, 3600);
+      
+      if (signedUrlError) {
+        console.error("Storage error creating signed URL:", signedUrlError);
+        return { url: `/error-storage`, storage: "supabase" as const, filePath };
+      }
+
+      return { url: data.signedUrl, storage: "supabase" as const, filePath };
     }
   }
 
   await ensureLocalDirectory();
   const absolutePath = path.join(localPublicRoot, fileName);
   await writeFile(absolutePath, bytes);
+
+  const isVercel = process.env.VERCEL === "1";
+  const publicUrl = isVercel ? `/api/reports/${fileName}/serve` : `/generated/reports/${fileName}`;
+
   return {
-    url: `/generated/reports/${fileName}`,
+    url: publicUrl,
     storage: "local" as const,
     filePath: absolutePath
   };
