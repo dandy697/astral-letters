@@ -138,14 +138,19 @@ model GeneratedReport {
   pdfUrl       String?
   deliveryChannel DeliveryChannel @default(PDF)
   createdAt    DateTime?       @default(now()) @db.Timestamptz(6)
+  newsletterLogs   NewsletterLog[]
 }
 
 model NewsletterLog {
   id             String    @id @default(cuid())
   user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId         String
+  report         GeneratedReport? @relation(fields: [reportId], references: [id])
+  reportId       String?
   subject        String
   previewText    String?
+  htmlBody       String?
+  textBody       String?
   deliveryStatus String?
   createdAt      DateTime? @default(now()) @db.Timestamptz(6)
 }
