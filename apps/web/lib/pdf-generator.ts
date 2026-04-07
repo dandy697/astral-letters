@@ -1,60 +1,39 @@
+import chromium from "@sparticuz/chromium-min";
+import puppeteer from "puppeteer-core";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { storeBinaryAsset } from "@/lib/storage";
 import { renderFreeTeaserHtml, renderPremiumReportHtml, renderNatalReportHtml } from "@/lib/report-templates";
 
 export async function generatePdfBuffer(html: string) {
-  let browser;
+  let browser = null;
   
   try {
-    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
-      // Production deployment (Vercel)
-      console.log("[PDF] Production environment detected, launching sparticuz-chromium...");
-      const chromium = (await import("@sparticuz/chromium")).default;
-      const puppeteer = await import("puppeteer-core");
-      const path = await import("path");
-      const fs = await import("fs");
-      
-      // Explicitly check for the bin folder as Vercel sometimes traces it elsewhere
-      let executablePath = "";
-      try {
-        // Improved path resolution for Vercel
-        const binPath = path.join(process.cwd(), "node_modules/@sparticuz/chromium/bin");
-        console.log(`[PDF] Checking binPath: ${binPath}`);
-        
-        if (fs.existsSync(binPath)) {
-          console.log(`[PDF] binPath exists, using it for executablePath.`);
-          executablePath = await chromium.executablePath(binPath);
-        } else {
-          console.log(`[PDF] binPath NOT found at ${binPath}. Falling back to default.`);
-          executablePath = await chromium.executablePath();
-        }
-      } catch (err) {
-        console.error("[PDF] Error resolving executable path:", err);
-        executablePath = await chromium.executablePath();
-      }
-      
-      console.log(`[PDF] Final executable path: ${executablePath}`);
+    let executablePath = "";
+    const CHROMIUM_PACK_URL = "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
 
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      console.log("[PDF] Production environment detected, launching @sparticuz/chromium-min...");
+      executablePath = await chromium.executablePath(CHROMIUM_PACK_URL);
+      
       browser = await puppeteer.launch({
         args: [
-          ...chromium.args, 
+          ...chromium.args,
           "--font-render-hinting=none",
           "--no-zygote",
           "--single-process",
           "--disable-gpu",
           "--no-sandbox"
         ],
-        defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
+        defaultViewport: chromium.defaultViewport,
         executablePath: executablePath,
-        headless: (chromium as any).headless
+        headless: chromium.headless,
       });
-      console.log("[PDF] Browser launched successfully on Vercel");
     } else {
-      // Local development
       console.log("[PDF] Local environment detected, launching standard puppeteer...");
-      const puppeteer = await import("puppeteer");
-      browser = await puppeteer.launch({ 
+      // For local development, assuming puppeteer is installed and has its own chromium
+      const localPuppeteer = await import("puppeteer");
+      browser = await localPuppeteer.launch({ 
         headless: true,
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
       });
