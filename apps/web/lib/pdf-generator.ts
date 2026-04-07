@@ -10,24 +10,24 @@ export async function generatePdfBuffer(html: string) {
   
   try {
     let executablePath = "";
-    const CHROMIUM_PACK_URL = "https://github.com/Sparticuz/chromium/releases/download/v123.0.1/chromium-v123.0.1-pack.tar";
+    // Matching version for @sparticuz/chromium-min@132.0.0
+    const CHROMIUM_PACK_URL = "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar";
 
     if (process.env.VERCEL || process.env.NODE_ENV === "production") {
-      console.log("[PDF] Production environment detected, launching @sparticuz/chromium-min...");
-      executablePath = await chromium.executablePath(CHROMIUM_PACK_URL);
+      console.log(`[PDF] Vercel/Production: Loading chromium v132 from ${CHROMIUM_PACK_URL}`);
+      try {
+        executablePath = await chromium.executablePath(CHROMIUM_PACK_URL);
+        (global as any).lastExecPath = executablePath;
+      } catch (e: any) {
+        console.error(`[PDF] Failed to resolve remote executablePath: ${e.message}`);
+        throw new Error(`Chromium remote pack failed to load from ${CHROMIUM_PACK_URL}: ${e.message}`);
+      }
       
       browser = await puppeteer.launch({
-        args: [
-          ...chromium.args,
-          "--font-render-hinting=none",
-          "--no-zygote",
-          "--single-process",
-          "--disable-gpu",
-          "--no-sandbox"
-        ],
+        args: chromium.args,
         defaultViewport: chromium.defaultViewport,
         executablePath: executablePath,
-        headless: chromium.headless,
+        headless: chromium.headless as any,
       });
     } else {
       console.log("[PDF] Local environment detected, launching standard puppeteer...");
@@ -39,8 +39,15 @@ export async function generatePdfBuffer(html: string) {
       });
     }
   } catch (launchError: any) {
-    console.error(`[PDF] Failed to launch browser: ${launchError.message}`);
-    throw new Error(`Browser launch failed: ${launchError.message}`);
+    const diag = {
+      message: launchError.message,
+      executablePath: (global as any).lastExecPath || "unknown",
+      packUrl: "https://github.com/Sparticuz/chromium/releases/download/v132.0.0/chromium-v132.0.0-pack.tar",
+      vercel: !!process.env.VERCEL,
+      nodeEnv: process.env.NODE_ENV
+    };
+    console.error(`[PDF] Failed to launch browser: ${JSON.stringify(diag)}`);
+    throw new Error(`Browser launch failed: ${launchError.message}. Path: ${diag.executablePath}`);
   }
 
   try {
