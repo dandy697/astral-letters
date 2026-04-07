@@ -109,6 +109,7 @@ model Subscription {
   offer                Offer              @relation(fields: [offerId], references: [id])
   offerId              String
   stripeSubscriptionId String?            @unique
+  stripeCustomerId     String?
   priceId              String?
   currentPeriodEnd     DateTime?
   cancelAtPeriodEnd    Boolean            @default(false)
