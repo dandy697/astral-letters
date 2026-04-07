@@ -1,0 +1,7 @@
+fastapi==0.115.12
+pyswisseph==2.10.3.2
+timezonefinder==6.5.8
+pydantic==2.11.3
+httpx==0.28.1
+python-dateutil==2.9.0.post0
+email-validator==2.2.0

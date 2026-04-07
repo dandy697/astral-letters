@@ -1,0 +1,262 @@
+@import "tailwindcss";
+
+:root {
+  /* ── Astral Letters Palette ── */
+  --background: #FAF8F6;
+  --surface: #FFFFFF;
+  --foreground: #0F0F0F;
+  --muted: #6B6160;
+  --muted-foreground: #9A918D;
+  --card: #FFFFFF;
+  --card-foreground: #0F0F0F;
+  --border: #EAE3DC;
+  --border-soft: rgba(58, 31, 61, 0.08);
+
+  /* Accent Prune – CTA & accents importants */
+  --primary: #3A1F3D;
+  --primary-hover: #4E2A52;
+  --primary-foreground: #FFFFFF;
+  --primary-soft: rgba(58, 31, 61, 0.06);
+  --primary-glow: rgba(58, 31, 61, 0.15);
+
+  /* Accent Or – éléments secondaires */
+  --accent: #C8A96A;
+  --accent-hover: #B89852;
+  --accent-foreground: #FFFFFF;
+  --accent-soft: rgba(200, 169, 106, 0.12);
+
+  --success: #3E8E6D;
+  --danger: #C44536;
+
+  --shadow-sm: 0 1px 3px rgba(15, 15, 15, 0.04);
+  --shadow-md: 0 4px 12px rgba(15, 15, 15, 0.06);
+  --shadow-lg: 0 12px 32px rgba(15, 15, 15, 0.08);
+  --shadow-xl: 0 20px 48px rgba(15, 15, 15, 0.10);
+
+  --radius-sm: 8px;
+  --radius-md: 16px;
+  --radius-lg: 24px;
+  --radius-xl: 32px;
+}
+
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
+html {
+  scroll-behavior: smooth;
+  color-scheme: light;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  color: var(--foreground);
+  background-color: var(--background);
+  font-family: var(--font-sans), system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  letter-spacing: -0.005em;
+}
+
+/* Subtle warm grid texture */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background-image:
+    linear-gradient(var(--border) 0.5px, transparent 0.5px),
+    linear-gradient(90deg, var(--border) 0.5px, transparent 0.5px);
+  background-size: 64px 64px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 30%, black, transparent 90%);
+  opacity: 0.15;
+  pointer-events: none;
+}
+
+h1, h2, h3, h4 {
+  font-weight: 800;
+  letter-spacing: -0.035em;
+  line-height: 1.1;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* ── Layout ── */
+.container-shell {
+  width: min(1200px, calc(100% - 40px));
+  margin-inline: auto;
+}
+
+.section-wrap {
+  padding-top: 6rem;
+  padding-bottom: 6rem;
+}
+
+@media (min-width: 768px) {
+  .section-wrap {
+    padding-top: 8rem;
+    padding-bottom: 8rem;
+  }
+}
+
+/* ── Cards ── */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-sm);
+  border-radius: var(--radius-lg);
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.glass-card:hover {
+  box-shadow: var(--shadow-md);
+  border-color: var(--muted-foreground);
+}
+
+.premium-card {
+  background: linear-gradient(135deg, #FFFFFF 0%, #FBF7F2 60%, #F7F0E8 100%);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-md);
+  border-radius: var(--radius-lg);
+}
+
+/* ── Typography Scale ── */
+.hero-title {
+  font-size: clamp(1.85rem, 9vw, 5.5rem);
+  font-weight: 800;
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  color: var(--foreground);
+  overflow-wrap: break-word;
+}
+
+.section-title {
+  font-size: clamp(1.6rem, 7vw, 3.5rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.035em;
+}
+
+.section-copy {
+  font-size: 1.125rem;
+  line-height: 1.75;
+  color: var(--muted);
+  max-width: 640px;
+}
+
+.eyebrow {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--accent);
+}
+
+.label-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 1rem;
+  background: var(--primary-soft);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--primary);
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  background: var(--primary);
+  color: var(--primary-foreground);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-primary:hover {
+  background: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px var(--primary-glow);
+}
+
+.btn-gold {
+  background: var(--accent);
+  color: #FFFFFF;
+  font-weight: 700;
+  border-radius: var(--radius-md);
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.btn-gold:hover {
+  background: var(--accent-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 24px var(--accent-soft);
+}
+
+/* ── Dividers ── */
+.section-divider {
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+/* ── Premium Blur Paywall ── */
+.blur-paywall {
+  position: relative;
+  overflow: hidden;
+}
+
+.blur-paywall::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, transparent 0%, var(--background) 90%);
+  pointer-events: none;
+}
+
+/* ── Selection ── */
+::selection {
+  background: var(--accent-soft);
+  color: var(--foreground);
+}
+
+/* ── Focus Ring ── */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
