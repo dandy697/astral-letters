@@ -8,6 +8,45 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  firstName String?
+  createdAt DateTime? @default(now()) @db.Timestamptz(6)
+  updatedAt DateTime? @default(now()) @updatedAt @db.Timestamptz(6)
+}
+
+model Lead {
+  id          String    @id @default(cuid())
+  email       String    @unique
+  firstName   String?
+  consentText String?
+  userId      String?
+  createdAt   DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model NatalChart {
+  id               String    @id @default(cuid())
+  userId           String    @unique
+  sunSign          String
+  moonSign         String
+  ascendantSign    String
+  chartJson        Json
+  technicalSummary String?
+  createdAt        DateTime? @default(now()) @db.Timestamptz(6)
+}
+
+model GeneratedReport {
+  id           String    @id @default(cuid())
+  userId       String
+  type         String
+  title        String
+  contentJson  Json
+  htmlSnapshot String?
+  pdfUrl       String?
+  createdAt    DateTime? @default(now()) @db.Timestamptz(6)
+}
+
 enum UserRole {
   USER
   ADMIN
@@ -45,149 +84,3 @@ enum DeliveryChannel {
   PDF
   DASHBOARD
 }
-
-model User {
-  id                String             @id @default(cuid())
-  firstName         String
-  email             String             @unique
-  role              UserRole           @default(USER)
-  timezone          String?            @default("Europe/Paris")
-  createdAt         DateTime           @default(now())
-  updatedAt         DateTime           @updatedAt
-  birthProfile      BirthProfile?
-  natalChart        NatalChart?
-  subscriptions     Subscription[]
-  generatedReports  GeneratedReport[]
-  newsletterLogs    NewsletterLog[]
-  payments          Payment[]
-  leads             Lead[]
-  auditLogs         AuditLog[]
-}
-
-model Lead {
-  id           String     @id @default(cuid())
-  email        String
-  firstName    String
-  source       LeadSource @default(LANDING)
-  consentText  String
-  createdAt    DateTime   @default(now())
-  convertedAt  DateTime?
-  userId       String?
-  user         User?      @relation(fields: [userId], references: [id], onDelete: SetNull)
-}
-
-model BirthProfile {
-  id                String   @id @default(cuid())
-  userId            String   @unique
-  birthDate         DateTime
-  birthTime         String?
-  birthLocation     String
-  latitude          Float
-  longitude         Float
-  timezone          String
-  isBirthTimeApprox Boolean  @default(false)
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model NatalChart {
-  id                 String   @id @default(cuid())
-  userId             String   @unique
-  sunSign            String
-  moonSign           String
-  ascendantSign      String
-  chartJson          Json
-  technicalSummary   String
-  lastCalculatedAt   DateTime @default(now())
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Offer {
-  id                    String         @id @default(cuid())
-  slug                  String         @unique
-  name                  String
-  description           String
-  priceMonthlyCents     Int?
-  oneShotPriceCents     Int?
-  stripePriceId         String?
-  stripeProductId       String?
-  type                  OfferType
-  features              Json
-  isHighlighted         Boolean        @default(false)
-  subscriptions         Subscription[]
-  payments              Payment[]
-  createdAt             DateTime       @default(now())
-  updatedAt             DateTime       @updatedAt
-}
-
-model Subscription {
-  id                      String              @id @default(cuid())
-  userId                  String
-  offerId                 String
-  stripeCustomerId        String?
-  stripeSubscriptionId    String?             @unique
-  status                  SubscriptionStatus  @default(TRIALING)
-  trialEndsAt             DateTime?
-  currentPeriodEnd        DateTime?
-  cancelAtPeriodEnd       Boolean             @default(false)
-  createdAt               DateTime            @default(now())
-  updatedAt               DateTime            @updatedAt
-  user                    User                @relation(fields: [userId], references: [id], onDelete: Cascade)
-  offer                   Offer               @relation(fields: [offerId], references: [id], onDelete: Restrict)
-}
-
-model GeneratedReport {
-  id                String          @id @default(cuid())
-  userId            String
-  type              ReportType
-  title             String
-  contentJson       Json
-  htmlSnapshot      String
-  pdfUrl            String?
-  deliveryChannel   DeliveryChannel
-  createdAt         DateTime        @default(now())
-  user              User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model NewsletterLog {
-  id               String          @id @default(cuid())
-  userId           String
-  reportId         String?
-  subject          String
-  previewText      String
-  htmlBody         String
-  textBody         String
-  resendMessageId  String?
-  deliveryStatus   String
-  createdAt        DateTime        @default(now())
-  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Payment {
-  id                    String   @id @default(cuid())
-  userId                String
-  offerId               String
-  stripeCheckoutId      String?  @unique
-  stripePaymentIntentId String?  @unique
-  amountCents           Int
-  currency              String   @default("eur")
-  status                String
-  createdAt             DateTime @default(now())
-  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  offer                 Offer    @relation(fields: [offerId], references: [id], onDelete: Restrict)
-}
-
-model AuditLog {
-  id          String   @id @default(cuid())
-  userId      String?
-  action      String
-  entityType  String
-  entityId    String
-  payload     Json
-  createdAt   DateTime @default(now())
-  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
-}
- 

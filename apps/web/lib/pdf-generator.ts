@@ -7,23 +7,25 @@ export async function generatePdfBuffer(html: string) {
   let browser;
   
   try {
-    if (process.env.VERCEL) {
-      // Vercel deployment
+    if (process.env.VERCEL || process.env.NODE_ENV === "production") {
+      // Production deployment (Vercel)
+      console.log("[PDF] Production environment detected, launching sparticuz-chromium...");
       const chromium = (await import("@sparticuz/chromium")).default;
       const puppeteer = await import("puppeteer-core");
       
       browser = await puppeteer.launch({
-        args: chromium.args,
+        args: [...chromium.args, "--font-render-hinting=none"],
         defaultViewport: (chromium as any).defaultViewport || { width: 1280, height: 720 },
         executablePath: await chromium.executablePath(),
-        headless: (chromium as any).headless,
+        headless: (chromium as any).headless
       });
     } else {
       // Local development
+      console.log("[PDF] Local environment detected, launching standard puppeteer...");
       const puppeteer = await import("puppeteer");
       browser = await puppeteer.launch({ 
         headless: true,
-        args: ['--no-sandbox', '--disable-setuid-sandbox']
+        args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
       });
     }
   } catch (launchError: any) {

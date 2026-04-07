@@ -108,7 +108,10 @@ export async function POST(request: Request) {
             type: "FREE_TEASER",
             deliveryChannel: "EMAIL",
             title: `Aperçu gratuit • ${new Date().toLocaleDateString("fr-FR")}`,
-            contentJson: { chart } as any,
+            contentJson: { 
+              ...content,
+              chart 
+            } as any,
             htmlSnapshot: "<h1>PDF Generation Failed</h1>",
           }
         });

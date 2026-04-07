@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/astro/(.*)",
+      "destination": "/api/astro"
+    }
+  ]
+}

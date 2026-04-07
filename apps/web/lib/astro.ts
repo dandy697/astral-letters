@@ -29,19 +29,32 @@ export type AstroChart = {
 
 export async function calculateChart(input: IntakeInput): Promise<AstroChart> {
   try {
-    const response = await fetch(`${env.ASTRO_SERVICE_URL}/chart`, {
+    const baseUrl = env.ASTRO_SERVICE_URL.endsWith("/") 
+      ? env.ASTRO_SERVICE_URL.slice(0, -1) 
+      : env.ASTRO_SERVICE_URL;
+
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000); // 15s timeout
+
+    const response = await fetch(`${baseUrl}/chart`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify(input),
-      cache: "no-store"
+      cache: "no-store",
+      signal: controller.signal
     });
+
+    clearTimeout(timeoutId);
 
     if (response.ok) {
       const chart = (await response.json()) as AstroChart;
+      console.log("[ASTRO] Real chart calculated for:", input.firstName);
       return normalizeChart(chart);
     }
+    
+    console.warn(`[ASTRO] Service returned status: ${response.status}`);
   } catch (err) {
     console.warn("[ASTRO] Service not reachable, using intelligent fallback.", err);
   }
