@@ -13,6 +13,8 @@ import { extractReportContent } from "@/lib/report-content";
 import { buildCheckoutLink } from "@/lib/checkout";
 import { findLocalReport } from "@/lib/local-report-store";
 
+export const dynamic = "force-dynamic";
+
 type ResultPageProps = {
   params?: Promise<{ id: string }>;
 };
